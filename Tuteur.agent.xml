@@ -1,0 +1,181 @@
+<!--
+	Interface Java EE - Jadex. 
+	Agent Plateforme lance un plan serveur qui va recevoir les requetes au port 9099. 
+	Et un autre plan qui va traiter le socket. 
+-->
+<agent xmlns="http://jadex.sourceforge.net/jadex"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jadex.sourceforge.net/jadex 
+	                    http://jadex.sourceforge.net/jadex-0.96.xsd"
+	name="Tuteur"
+	package="com.jadex">
+
+	<imports>
+ 		<import>java.net.Socket</import>
+		<import>java.util.logging.Level</import>
+	</imports>
+
+	<capabilities>
+		<!-- pour creer de nouveaux agents. -->
+    	<capability name="amscap" file="jadex.planlib.AMS" />	
+    	<!-- pour envoyer des messages a d'autres agents -->
+		<capability name="procap" file="jadex.planlib.Protocols"/>
+		<!-- pour chercher des agents a travers le directory facilitator (df) -->
+		<capability name="dfcap" file="jadex.planlib.DF"/>
+    </capabilities>
+
+	<goals>
+		<!-- [objectif] etablir une communication -->
+		<achievegoalref name="rp_initiate">
+			<concrete ref="procap.rp_initiate"/>
+		</achievegoalref>
+		
+		<!-- [objectif] pour chercher des agents en utilisant le DF -->
+		<achievegoalref name="df_search">
+        	<concrete ref="dfcap.df_search"/>
+    	</achievegoalref>
+		
+		<!-- [objectif] creer un nouvel agent en precisant le type -->
+		<achievegoalref name="ams_create_agent">
+       		 <concrete ref="amscap.ams_create_agent" />
+   		 </achievegoalref>
+   		 
+   		 <!-- [objectif] traiter le contenu du socket -->
+ 		<achievegoal name="routes">
+			<parameter name="client" class="Socket"/>
+		</achievegoal>
+		
+		<!-- [objectif] chercher un agent en utilisant le AMS  -->
+		<achievegoalref name="ams_search_agents">
+        	<concrete ref="amscap.ams_search_agents" />
+    	</achievegoalref>
+    	
+    	<!-- inscrire un nouvel agent apprenant -->
+   		 <achievegoal name="inscription">
+			<parameter name="params" class="String" />
+			<parameter name="client" class="Socket"/>
+		</achievegoal>
+		
+		<!-- connecter l'apprenant -->
+   		 <achievegoal name="connexion">
+			<parameter name="params" class="String" />
+			<parameter name="client" class="Socket"/>
+		</achievegoal>
+		
+		<!-- signaler le debut de l'activite -->
+   		 <achievegoal name="debut">
+			<parameter name="params" class="String" />
+			<parameter name="client" class="Socket"/>
+		</achievegoal>
+		
+		<!-- signaler la fin de l'activite -->
+   		 <achievegoal name="fin">
+			<parameter name="params" class="String" />
+			<parameter name="client" class="Socket"/>
+		</achievegoal>
+		
+		<!-- signaler la fin de l'activite -->
+   		 <achievegoal name="inactive">
+			<parameter name="params" class="String" />
+			<parameter name="client" class="Socket"/>
+		</achievegoal>
+   		 
+   		 
+	</goals>
+
+	<plans>
+	
+		<plan name="inactive">
+			<parameter name="params" class="String">
+				<goalmapping ref="inactive.params"/>
+			</parameter>
+			<parameter name="client" class="Socket">
+				<goalmapping ref="inactive.client"/>
+			</parameter>
+			<body class="tInactive" />
+			<trigger>
+				<goal ref="inactive" />
+			</trigger>
+		</plan>
+	
+		<plan name="fin">
+			<parameter name="params" class="String">
+				<goalmapping ref="fin.params"/>
+			</parameter>
+			<parameter name="client" class="Socket">
+				<goalmapping ref="fin.client"/>
+			</parameter>
+			<body class="tFin" />
+			<trigger>
+				<goal ref="fin" />
+			</trigger>
+		</plan>
+		
+		<plan name="debut">
+			<parameter name="params" class="String">
+				<goalmapping ref="debut.params"/>
+			</parameter>
+			<parameter name="client" class="Socket">
+				<goalmapping ref="debut.client"/>
+			</parameter>
+			<body class="tDebut" />
+			<trigger>
+				<goal ref="debut" />
+			</trigger>
+		</plan>
+	
+		<plan name="connexion">
+			<parameter name="params" class="String">
+				<goalmapping ref="connexion.params"/>
+			</parameter>
+			<parameter name="client" class="Socket">
+				<goalmapping ref="connexion.client"/>
+			</parameter>
+			<body class="tConnexion" />
+			<trigger>
+				<goal ref="connexion" />
+			</trigger>
+		</plan>
+	
+		<plan name="inscription">
+			<parameter name="params" class="String">
+				<goalmapping ref="inscription.params"/>
+			</parameter>
+			<parameter name="client" class="Socket">
+				<goalmapping ref="inscription.client"/>
+			</parameter>
+			<body class="tInscription" />
+			<trigger>
+				<goal ref="inscription" />
+			</trigger>
+		</plan>
+	
+		<plan name="routes">
+			<parameter name="client" class="Socket">
+				<goalmapping ref="routes.client"/>
+			</parameter>
+			<body class="tRoutes"/>
+ 			<trigger>
+				<goal ref="routes"/>
+			</trigger>
+		</plan>
+	
+		<plan name="server">
+			<body>new pServeur(9099)</body>
+		</plan>
+		
+		<plan name="pf">
+			<body class="pInit" />
+		</plan>
+		
+	</plans>
+ 
+	<configurations>
+		<configuration name="default">
+			<plans>
+				<initialplan ref="server"/>
+				<initialplan ref="pf"></initialplan>
+			</plans>
+		</configuration>
+	</configurations>
+</agent>

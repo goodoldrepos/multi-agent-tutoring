@@ -1,0 +1,111 @@
+<!--
+	Agent Etudiant.
+-->
+<agent xmlns="http://jadex.sourceforge.net/jadex"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jadex.sourceforge.net/jadex 
+	                    http://jadex.sourceforge.net/jadex-0.96.xsd"
+	name="Apprenant"
+	package="com.jadex">
+
+	<imports>
+		<import>jadex.planlib.*</import>
+		<import>jadex.adapter.fipa.*</import>
+		<import>java.util.logging.*</import>
+		<import>jadex.util.*</import>	
+	</imports>
+	
+	<capabilities>
+		<capability name="dfcap" file="jadex.planlib.DF"/>
+	</capabilities>
+	
+	<beliefs>
+		<belief name="CNE" class="String">
+			<fact>"null"</fact>
+		</belief>
+		<belief name="inactive" class="String">
+			<fact>"0"</fact>
+		</belief>	
+		
+	</beliefs>
+
+	<goals>
+ 		<maintaingoalref name="df_keep_registered">
+			<concrete ref="dfcap.df_keep_registered"/>
+		</maintaingoalref>
+		<achievegoalref name="df_modify">
+        	<concrete ref="dfcap.df_modify"/>
+   		 </achievegoalref>
+   		 <achievegoalref name="df_register">
+        	<concrete ref="dfcap.df_register"/>
+    	 </achievegoalref>
+	</goals>
+	
+	<plans>
+		<plan name="aInit">
+			<body class="aInit"/>
+			<trigger>
+				<messageevent ref="message_init"/>
+			</trigger>
+		</plan>
+		
+		<plan name="aSePresenter">
+			<body class="aSePresenter"/>
+			<trigger>
+				<messageevent ref="demande_informations"/>
+			</trigger>
+		</plan>
+		 
+	</plans>
+	
+	<events>
+		<messageevent name="message_init" direction="receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.REQUEST</value>
+			</parameter>
+			<match>((String)$content).startsWith("init")</match>
+		</messageevent>
+		
+		<messageevent name="demande_informations" direction="receive" type="fipa">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.REQUEST</value>
+			</parameter>
+			<match>((String)$content).startsWith("cne")</match>
+		</messageevent>
+		
+		<messageevent name="inform" direction="send" type="fipa" exported="true">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.INFORM</value>
+			</parameter>
+		</messageevent>
+		<messageevent name="failure" direction="send" type="fipa" exported="true">
+			<parameter name="performative" class="String" direction="fixed">
+				<value>SFipa.FAILURE</value>
+			</parameter>
+		</messageevent>
+	</events>
+	
+
+	<configurations>
+		<configuration name="default">
+			<!-- <goals>
+				 <initialgoal ref="df_keep_registered">
+					<parameter ref="description">
+						<value>
+ 							SFipa.createAgentDescription(null,
+							SFipa.createServiceDescription("apprenant",
+			 				"apprenant", "PFE"))
+ 						</value>
+					</parameter>
+					<parameter ref="leasetime">
+						<value>20000</value>
+					</parameter>
+				</initialgoal> 
+			</goals> 
+			<plans>
+				<initialplan ref="aInit"/> 
+			</plans> -->
+		</configuration>
+	</configurations>
+</agent>
+
